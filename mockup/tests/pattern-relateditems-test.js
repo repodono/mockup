@@ -294,7 +294,8 @@ define([
         '<div>' +
         ' <input class="pat-relateditems"' +
         '        data-pat-relateditems="width: 300px;' +
-        '                          vocabularyUrl: /relateditems-test.json" />' +
+        '                          vocabularyUrl: /relateditems-test.json;' +
+        '                          treeOptions: {vocabularyUrl: /relateditems-test.json}" />' +
         '</div>').appendTo('body');
       var pattern = $('.pat-relateditems', $el).patternRelateditems().data('patternRelateditems');
 
@@ -319,7 +320,8 @@ define([
         '<div>' +
         ' <input class="pat-relateditems"' +
         '        data-pat-relateditems="width: 300px;' +
-        '                          vocabularyUrl: /relateditems-test.json" />' +
+        '                          vocabularyUrl: /relateditems-test.json;' +
+        '                          treeOptions: {vocabularyUrl: /relateditems-test.json}" />' +
         '</div>').appendTo('body');
       var pattern = $('.pat-relateditems', $el).patternRelateditems().data('patternRelateditems');
 
@@ -346,7 +348,8 @@ define([
         '<div>' +
         ' <input class="pat-relateditems"' +
         '        data-pat-relateditems="width: 300px;' +
-        '                          vocabularyUrl: /relateditems-test.json" />' +
+        '                          vocabularyUrl: /relateditems-test.json;' +
+        '                          treeOptions: {vocabularyUrl: /relateditems-test.json}" />' +
         '</div>').appendTo('body');
       var pattern = $('.pat-relateditems', $el).patternRelateditems().data('patternRelateditems');
 
@@ -378,7 +381,8 @@ define([
         ' <input class="pat-relateditems"' +
         '        data-pat-relateditems="width: 300px;' +
         '                          maximumSelectionSize: 1;' +
-        '                          vocabularyUrl: /relateditems-test.json" />' +
+        '                          vocabularyUrl: /relateditems-test.json;' +
+        '                          treeOptions: {vocabularyUrl: /relateditems-test.json}" />' +
         '</div>').appendTo('body');
       var pattern = $('.pat-relateditems', $el).patternRelateditems().data('patternRelateditems');
 
@@ -402,7 +406,8 @@ define([
         '        value="asdf1234,sdfbsfdh345,asdlfkjasdlfkjasdf,kokpoius98"' +
         '        data-pat-relateditems="width: 300px;' +
         '                          maximumSelectionSize: 1;' +
-        '                          vocabularyUrl: /relateditems-test.json" />' +
+        '                          vocabularyUrl: /relateditems-test.json;' +
+        '                          treeOptions: {vocabularyUrl: /relateditems-test.json}" />' +
         '</div>').appendTo('body');
       var pattern = $('.pat-relateditems', $el).patternRelateditems().data('patternRelateditems');
 
@@ -421,7 +426,8 @@ define([
         '        value="asdf1234,sdfbsfdh345,asdlfkjasdlfkjasdf,kokpoius98"' +
         '        data-pat-relateditems="width: 300px;' +
         '                          maximumSelectionSize: 1;' +
-        '                          vocabularyUrl: /relateditems-test.json" />' +
+        '                          vocabularyUrl: /relateditems-test.json;' +
+        '                          treeOptions: {vocabularyUrl: /relateditems-test.json}" />' +
         '</div>').appendTo('body');
 
       var clock = sinon.useFakeTimers();
@@ -446,7 +452,8 @@ define([
         '        value="asdf1234,sdfbsfdh345,asdlfkjasdlfkjasdf,kokpoius98"' +
         '        data-pat-relateditems="width: 300px;' +
         '                          maximumSelectionSize: 1;' +
-        '                          vocabularyUrl: /relateditems-test.json" />' +
+        '                          vocabularyUrl: /relateditems-test.json;' +
+        '                          treeOptions: {vocabularyUrl: /relateditems-test.json}" />' +
         '</div>').appendTo('body');
 
       var clock = sinon.useFakeTimers();
@@ -475,7 +482,8 @@ define([
         '        value="asdf1234,sdfbsfdh345,asdlfkjasdlfkjasdf,kokpoius98"' +
         '        data-pat-relateditems="width: 300px;' +
         '                          maximumSelectionSize: 1;' +
-        '                          vocabularyUrl: /relateditems-test.json" />' +
+        '                          vocabularyUrl: /relateditems-test.json;' +
+        '                          treeOptions: {vocabularyUrl: /relateditems-test.json}" />' +
         '</div>').appendTo('body');
 
       var clock = sinon.useFakeTimers();
@@ -507,7 +515,8 @@ define([
         '        value="asdf1234,sdfbsfdh345,asdlfkjasdlfkjasdf,kokpoius98"' +
         '        data-pat-relateditems="width: 300px;' +
         '                          maximumSelectionSize: 1;' +
-        '                          vocabularyUrl: /relateditems-test.json" />' +
+        '                          vocabularyUrl: /relateditems-test.json;' +
+        '                          treeOptions: {vocabularyUrl: /relateditems-test.json}" />' +
         '</div>').appendTo('body');
 
       var clock = sinon.useFakeTimers();

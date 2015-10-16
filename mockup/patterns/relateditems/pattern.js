@@ -102,6 +102,9 @@ define([
       attributes: ['UID', 'Title', 'portal_type', 'path', 'getIcon'],
       dropdownCssClass: 'pattern-relateditems-dropdown',
       maximumSelectionSize: -1,
+      treeOptions: {
+        vocabularyUrl: null, // must be set to work
+      },
       resultTemplate: '' +
         '<div class="pattern-relateditems-result pattern-relateditems-type-<%= portal_type %> <% if (selected) { %>pattern-relateditems-active<% } %>">' +
         '  <a href="#" class="pattern-relateditems-result-select <% if (selectable) { %>selectable<% } %> contenttype-<%= portal_type.toLowerCase() %>">' +
@@ -350,12 +353,13 @@ define([
       self.treeQuery = new utils.QueryHelper(
         $.extend(true, {}, self.options, {
           pattern: self,
+          vocabularyUrl: self.options.treeOptions.vocabularyUrl,
           baseCriteria: [{
             i: 'portal_type',
             o: 'plone.app.querystring.operation.list.contains',
             v: self.options.folderTypes
           }]
-        })
+        }, self.options.treeOptions)
       );
 
       self.options.ajax = self.options.setupAjax.apply(self);
