@@ -27,6 +27,10 @@ New:
 
 Fixes:
 
+- Import TinyMCE ``Content.less`` from the lightgray skin as less file, not
+  inline. Fixes plone/Products.CMFPlone/#755.
+  [thet]
+
 - Cleanup and rework: contenttype-icons and showing thumbnails
   for images/leadimages in listings ...
   https://github.com/plone/Products.CMFPlone/issues/1226
