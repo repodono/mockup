@@ -11,6 +11,9 @@ New:
   be taken care of with plone-modal-open class being applied to the body.
   This should fix issues with scrolling when this isn't properly cleared
   [vangheem]
+- Changed how the querystring pattern displays options for path-based queries,
+  to improve usability for less tech-savvy users.
+  [obct537]
 
 - Added the ``momentFormat`` option to the ``structure`` pattern.
   [Gagaro]
