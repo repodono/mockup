@@ -453,9 +453,8 @@ define([
       }
       else {
         var str = vstrbase + self.$value.val();
-        var depth = $('.'+self.options.classDepthName).val();
-        if( self.$value.val() !== '' && depth !== undefined ) {
-          str += '::' + depth;
+        if( self.$value.val() !== '' ) {
+          str += self.getDepthString();
         }
         else if( self.initial !== undefined ) {
           str = vstrbase + self.initial;
@@ -497,10 +496,7 @@ define([
       }
       else if (typeof self.$value !== 'undefined') {
         var value = self.$value.val();
-        var depth = $('.'+self.options.classDepthName).val();
-        if( depth !== "" && depth !== undefined ) {
-          value += '::' + depth;
-        }
+        value += self.getDepthString();
         varr.push(value);
       }
       var vval;
@@ -515,6 +511,16 @@ define([
       }
 
       return '{"i":"' + ival + '", "o":"' + oval + '", "v":' + vval + '}';
+    },
+    getDepthString: function() {
+      var self = this,
+          out = "",
+          depth = $('.'+self.options.classDepthName).val();
+
+      if( depth !== "" && depth !== undefined ) {
+        out += '::' + depth;
+      }
+      return out;
     },
     trigger: function(name) {
       this.$wrapper.trigger(name + '-criteria.querystring.patterns', [ this ]);
