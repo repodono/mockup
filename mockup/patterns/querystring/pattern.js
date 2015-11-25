@@ -44,10 +44,11 @@ define([
   'pat-base',
   'mockup-patterns-select2',
   'mockup-patterns-pickadate',
+  'mockup-patterns-relateditems',
   'select2',
   'translate',
   'underscore'
-], function($, Base, Select2, PickADate, undefined, _t, _) {
+], function($, Base, Select2, PickADate, relatedItems, undefined, _t, _) {
   'use strict';
 
   var Criteria = function() { this.init.apply(this, arguments); };
@@ -62,15 +63,17 @@ define([
       classValueName: 'querystring-criteria-value',
       classRemoveName: 'querystring-criteria-remove',
       classResultsName: 'querystring-criteria-results',
-      classClearName: 'querystring-criteria-clear'
+      classClearName: 'querystring-criteria-clear',
+      classDepthName: 'querystring-criteria-depth'
     },
-    init: function($el, options, indexes, index, operator, value) {
+    init: function($el, options, indexes, index, operator, value, baseUrl) {
       var self = this;
 
       self.options = $.extend(true, {}, self.defaults, options);
       self.indexes = indexes;
       self.indexGroups = {};
-
+      self.baseUrl = baseUrl;
+      self.initial = value;
       // create wrapper criteria and append it to DOM
       self.$wrapper = $('<div/>')
               .addClass(self.options.classWrapperName)
@@ -132,11 +135,37 @@ define([
 
       self.trigger('create-criteria');
     },
+    createPathOperators: function() {
+      var self = this;
+      $.each(self.indexes.path.operators, function(key, value) {
+        var options = value;
+        if( key.indexOf('absolute') > 0 ) {
+          options.title = "Custom";
+        }
+        else if( key.indexOf('relative') > 0 ) {
+          options.title = "Parent (../)";
+          options.widget = "RelativePathWidget";
+        }
+        else {
+          options.title = "Current (./)";
+          options.widget = "RelativePathWidget";
+        }
+      });
+      var newOperator = "plone.app.querystring.operation.string.advanced";
+      self.indexes.path.operations.push(newOperator);
+      self.indexes.path.operators[newOperator] = {
+        title: 'Advanced',
+        widget: 'StringWidget',
+        description: 'Enter a custom path string',
+        operation: 'plone.app.querystring.queryparser._relativePath'
+      };
+    },
     createOperator: function(index, operator, value) {
       var self = this;
 
       self.removeOperator();
       self.$operator = $('<select/>');
+      self.createPathOperators();
 
       if (self.indexes[index]) {
         _.each(self.indexes[index].operations, function(value) {
@@ -181,6 +210,28 @@ define([
             .appendTo(self.$wrapper);
 
       self.removeValue();
+
+      var createDepthSelect = function(selected) {
+        var select =
+          "<div class='depth-select-box'>" +
+            "<label for='depth-select'>Depth</label>" +
+            "<select name='depth-select' class='"+self.options.classDepthName+"'>" +
+              "<option value='' selected='selected'>Any</option>";
+
+              for(var i = 1; i <= 10; i+=1) {
+                select += "<option value="+i+" ";
+                if( ""+i === selected ) {
+                  select += "selected='selected' ";
+                }
+                select += ">" + i + "</option>";
+              }
+            select += "</select>" +
+          "</div>";
+
+          return $(select).change(function() {
+            self.trigger('depth-changed');
+          });
+      };
 
       if (widget === 'StringWidget') {
         self.$value = $('<input type="text"/>')
@@ -250,23 +301,36 @@ define([
                   self.trigger('value-changed');
                 });
 
-      } else if (widget === 'ReferenceWidget') {
-        self.$value = $('<input type="text"/>')
-                .addClass(self.options.classValueName + '-' + widget)
-                .val(value)
-                .appendTo($wrapper)
-                .change(function() {
-                  self.trigger('value-changed');
-                });
-
       } else if (widget === 'RelativePathWidget') {
+        var val = ".::1";
+        if ( self.$operator.val().indexOf('relativePath') > 0 ) {
+          val = "..::1";
+        }
+        self.$value = $('<input type="hidden"/>')
+        .addClass(self.options.classValueName + '-' + widget)
+        .appendTo($wrapper)
+        .val(val);
+
+      } else if (widget === 'ReferenceWidget') {
+        var pathAndDepth = ['', -1];
+        if( value !== undefined ) {
+            pathAndDepth = value.split('::');
+        }
         self.$value = $('<input type="text"/>')
-                .addClass(self.options.classValueName + '-' + widget)
-                .appendTo($wrapper)
-                .val(value)
-                .change(function() {
-                  self.trigger('value-changed');
-                });
+        .addClass(self.options.classValueName + '-' + widget)
+        .appendTo($wrapper)
+        .val(pathAndDepth[0])
+        .patternRelateditems({
+          "vocabularyUrl": self.baseUrl + "@@getVocabulary?name=plone.app.vocabularies.Catalog&field=relatedItems",
+          "folderTypes": ["Folder"],
+          "maximumSelectionSize": 1,
+          "width": "400px"
+        })
+        .change(function() {
+          self.trigger('value-changed');
+        });
+        self.$value.parent().after(createDepthSelect(pathAndDepth[1]));
+        self.$value.parents('.' + self.options.classValueName).addClass('break-line');
 
       } else if (widget === 'MultipleSelectionWidget') {
         self.$value = $('<select/>').prop('multiple', true)
@@ -293,7 +357,8 @@ define([
           });
         }
         else {
-          self.$value.select2('val', value);
+          var trimmedValue = value.replace(/::[0-9]+/, '');
+          self.$value.select2('val', trimmedValue);
         }
       }
 
@@ -359,8 +424,15 @@ define([
       if (typeof self.$operator === 'undefined') { // no operator, no query
         return '';
       }
-      var oval = self.$operator.val(),
-          ostr = 'query.o:records=' + oval;
+      var oval = self.$operator.val();
+
+      if( ival === "path" ) {
+        //This allows us to use the same query operation for multiple select options.
+        oval = oval.replace('advanced', 'relativePath');
+        oval = oval.replace('path', 'relativePath');
+      }
+
+      var ostr = 'query.o:records=' + oval;
 
       // value(s)
       var vstrbase = 'query.v:records=',
@@ -380,7 +452,18 @@ define([
         });
       }
       else {
-        vstr.push(vstrbase + self.$value.val());
+        var str = vstrbase + self.$value.val();
+        var depth = $('.'+self.options.classDepthName).val();
+        if( self.$value.val() !== '' && depth !== undefined ) {
+          str += '::' + depth;
+        }
+        else if( self.initial !== undefined ) {
+          str = vstrbase + self.initial;
+          //Sometimes the RelatedItemsWidget won't be loaded by this point.
+          //This only should happen on the initial page load.
+          delete self.initial;
+        }
+        vstr.push(str);
       }
 
       return istr + '&' + ostr + '&' + vstr.join('&');
@@ -400,6 +483,11 @@ define([
       }
       var oval = self.$operator.val();
 
+      if( ival === "path" ) {
+        //This allows us to use the same query operation for multiple select options.
+        oval = oval.replace('advanced', 'relativePath');
+        oval = oval.replace('path', 'relativePath');
+      }
       // value(s)
       var varr = [];
       if ($.isArray(self.$value)) { // handles only datepickers from the 'between' operator right now
@@ -408,7 +496,12 @@ define([
         });
       }
       else if (typeof self.$value !== 'undefined') {
-        varr.push(self.$value.val());
+        var value = self.$value.val();
+        var depth = $('.'+self.options.classDepthName).val();
+        if( depth !== "" && depth !== undefined ) {
+          value += '::' + depth;
+        }
+        varr.push(value);
       }
       var vval;
       if (varr.length > 1) {
@@ -536,8 +629,9 @@ define([
     },
     createCriteria: function(index, operator, value) {
       var self = this,
+          baseUrl = self.options.indexOptionsUrl.replace(/(@@.*)/g, ''),
           criteria = new Criteria(self.$criteriaWrapper, self.options.criteria,
-            self.options.indexes, index, operator, value);
+            self.options.indexes, index, operator, value, baseUrl);
 
       criteria.on('remove', function(e) {
         if (self.criterias[self.criterias.length - 1] === criteria) {
@@ -571,6 +665,7 @@ define([
       criteria.on('create-operator', doupdates);
       criteria.on('create-value', doupdates);
       criteria.on('value-changed', doupdates);
+      criteria.on('depth-changed', doupdates);
 
       self.criterias.push(criteria);
     },
@@ -639,7 +734,7 @@ define([
         $(existingSortOrder).hide();
       }
     },
-    refreshPreviewEvent: function() {
+    refreshPreviewEvent: function(value) {
       var self = this;
 
       if (!self.options.showPreviews) {
@@ -665,9 +760,9 @@ define([
 
       var query = [], querypart;
       $.each(self.criterias, function(i, criteria) {
-        querypart = criteria.buildQueryPart();
+        var querypart = criteria.buildQueryPart();
         if (querypart !== '') {
-          query.push(criteria.buildQueryPart());
+            query.push(querypart);
         }
       });
 
