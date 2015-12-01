@@ -510,6 +510,10 @@ define([
         vval = '""';
       }
 
+      if( self.indexes[ival].operators[oval] === undefined ) {
+        return;
+      }
+
       return '{"i":"' + ival + '", "o":"' + oval + '", "v":' + vval + '}';
     },
     getDepthString: function() {
@@ -651,9 +655,15 @@ define([
         }
       });
 
-      var doupdates = function() {
+      //This prevents multiple requests from going off after making a single change
+      var _doupdates = function(){
         self.refreshPreviewEvent();
         self.updateValue();
+      };
+      var _updateTimeout = -1;
+      var doupdates = function() {
+        clearTimeout(_updateTimeout);
+        _updateTimeout = setTimeout(_doupdates, 100);
       };
 
       criteria.on('remove', function(e, criteria) {
