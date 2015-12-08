@@ -135,6 +135,13 @@ define([
 
       self.trigger('create-criteria');
     },
+    convertPathOperators: function(oval) {
+      //This allows us to use the same query operation for multiple dropdown options.
+      oval = oval
+        .replace('advanced', 'relativePath')
+        .replace('path', 'relativePath');
+      return oval;
+	},
     createPathOperators: function() {
       var self = this;
       $.each(self.indexes.path.operators, function(key, value) {
@@ -302,6 +309,8 @@ define([
                 });
 
       } else if (widget === 'RelativePathWidget') {
+        //These 2 hard-coded values correspond to the "Current (./)" and "Parent (../)" options
+        //under the location index.
         var val = ".::1";
         if ( self.$operator.val().indexOf('relativePath') > 0 ) {
           val = "..::1";
@@ -427,9 +436,7 @@ define([
       var oval = self.$operator.val();
 
       if( ival === "path" ) {
-        //This allows us to use the same query operation for multiple select options.
-        oval = oval.replace('advanced', 'relativePath');
-        oval = oval.replace('path', 'relativePath');
+        oval = self.convertPathOperators(oval);
       }
 
       var ostr = 'query.o:records=' + oval;
@@ -483,9 +490,7 @@ define([
       var oval = self.$operator.val();
 
       if( ival === "path" ) {
-        //This allows us to use the same query operation for multiple select options.
-        oval = oval.replace('advanced', 'relativePath');
-        oval = oval.replace('path', 'relativePath');
+        oval = self.convertPathOperators(oval);
       }
       // value(s)
       var varr = [];
@@ -778,7 +783,7 @@ define([
       $.each(self.criterias, function(i, criteria) {
         var querypart = criteria.buildQueryPart();
         if (querypart !== '') {
-            query.push(querypart);
+          query.push(querypart);
         }
       });
 

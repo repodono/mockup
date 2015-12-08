@@ -15,6 +15,9 @@ New:
   to improve usability for less tech-savvy users.
   [obct537]
 
+- Fixed issue causing the querystring pattern to query multiple times per change
+  [obct537]
+
 - Added the ``momentFormat`` option to the ``structure`` pattern.
   [Gagaro]
 
