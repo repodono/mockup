@@ -282,4 +282,119 @@ define([
     });
 
   });
+
+  /* ==========================
+   TEST: Structure Customized
+  ========================== */
+  describe('Structure Customized', function() {
+    beforeEach(function() {
+      // clear cookie setting
+      $.removeCookie('_fc_perPage');
+
+      this.$el = $('' +
+        '<div class="pat-structure" ' +
+             'data-pat-structure="' +
+                 '{&quot;vocabularyUrl&quot;: &quot;/data.json;&quot;,' +
+                  '&quot;indexOptionsUrl&quot;: &quot;/tests/json/queryStringCriteria.json&quot;,' +
+                  '&quot;contextInfoUrl&quot;: &quot;{path}/contextInfo&quot;,' +
+                  '&quot;buttons&quot;: [{' +
+                      '&quot;url&quot;: &quot;foo&quot;, ' +
+                      '&quot;title&quot;: &quot;Foo&quot;, ' +
+                      '&quot;id&quot;: &quot;foo&quot;, ' +
+                      '&quot;icon&quot;: &quot;&quot;' +
+                  '}]' +
+                  '}">' +
+        '</div>').appendTo('body');
+
+      this.server = sinon.fakeServer.create();
+      this.server.autoRespond = true;
+
+      this.server.respondWith('GET', /data.json/, function (xhr, id) {
+        var batch = JSON.parse(getQueryVariable(xhr.url, 'batch'));
+        var start = 0;
+        var end = 15;
+        if (batch) {
+          start = (batch.page - 1) * batch.size;
+          end = start + batch.size;
+        }
+        var items = [];
+
+        xhr.respond(200, { 'Content-Type': 'application/json' }, JSON.stringify({
+          total: 100,
+          results: items
+        }));
+      });
+      this.server.respondWith('GET', /contextInfo/, function (xhr, id) {
+        var data = {
+          addButtons: []
+        };
+        if (xhr.url.indexOf('folder') !== -1){
+          data.object = {
+            UID: '123sdfasdfFolder',
+            getURL: 'http://localhost:8081/folder',
+            path: '/folder',
+            portal_type: 'Folder',
+            Description: 'folder',
+            Title: 'Folder',
+            'review_state': 'published',
+            'is_folderish': true,
+            Subject: [],
+            id: 'folder'
+          };
+        }
+        xhr.respond(200, { 'Content-Type': 'application/json' }, JSON.stringify(data));
+      });
+
+      this.clock = sinon.useFakeTimers();
+    });
+
+    afterEach(function() {
+      this.server.restore();
+      this.clock.restore();
+    });
+
+    it('initialize', function() {
+      registry.scan(this.$el);
+      expect(this.$el.find('.order-support > table').size()).to.equal(1);
+    });
+
+    it('per page', function() {
+      registry.scan(this.$el);
+      this.clock.tick(1000);
+      this.$el.find('.serverhowmany15 a').trigger('click');
+      this.clock.tick(1000);
+      expect(this.$el.find('.itemRow').length).to.equal(0);
+      this.$el.find('.serverhowmany30 a').trigger('click');
+      this.clock.tick(1000);
+      expect(this.$el.find('.itemRow').length).to.equal(0);
+    });
+
+    it('test select all', function() {
+      registry.scan(this.$el);
+      this.clock.tick(1000);
+      var $item = this.$el.find('table th .select-all');
+      $item[0].checked = true;
+      $item.trigger('change');
+      this.clock.tick(1000);
+      expect(this.$el.find('#btn-selected-items').html()).to.contain('0');
+
+    });
+
+    it('test unselect all', function() {
+      registry.scan(this.$el);
+      this.clock.tick(1000);
+      var $item = this.$el.find('table th .select-all');
+      $item[0].checked = true;
+      $item.trigger('change');
+      this.clock.tick(1000);
+      expect(this.$el.find('#btn-selected-items').html()).to.contain('0');
+      $item[0].checked = false;
+      $item.trigger('change');
+      this.clock.tick(1000);
+      expect(this.$el.find('#btn-selected-items').html()).to.contain('0');
+    });
+
+  });
+
+
 });
