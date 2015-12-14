@@ -297,6 +297,7 @@ define([
                  '{&quot;vocabularyUrl&quot;: &quot;/data.json;&quot;,' +
                   '&quot;indexOptionsUrl&quot;: &quot;/tests/json/queryStringCriteria.json&quot;,' +
                   '&quot;contextInfoUrl&quot;: &quot;{path}/contextInfo&quot;,' +
+                  // XXX need a test where there are _no_ buttons.
                   '&quot;buttons&quot;: [{' +
                       '&quot;url&quot;: &quot;foo&quot;, ' +
                       '&quot;title&quot;: &quot;Foo&quot;, ' +
