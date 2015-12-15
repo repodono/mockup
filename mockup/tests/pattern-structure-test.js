@@ -34,6 +34,7 @@ define([
       // clear cookie setting
       $.removeCookie('_fc_perPage');
       $.removeCookie('_fc_activeColumns');
+      $.removeCookie('_fc_activeColumnsCustom');
 
       this.$el = $('' +
         '<div class="pat-structure" ' +
@@ -344,6 +345,7 @@ define([
                  '{&quot;vocabularyUrl&quot;: &quot;/data.json;&quot;,' +
                   '&quot;indexOptionsUrl&quot;: &quot;/tests/json/queryStringCriteria.json&quot;,' +
                   '&quot;contextInfoUrl&quot;: &quot;{path}/contextInfo&quot;,' +
+                  '&quot;activeColumnsCookie&quot;: &quot;activeColumnsCustom&quot;,' +
                   // XXX need a test where there are _no_ buttons.
                   '&quot;buttons&quot;: [{' +
                       '&quot;url&quot;: &quot;foo&quot;, ' +
@@ -440,6 +442,55 @@ define([
       $item.trigger('change');
       this.clock.tick(1000);
       expect(this.$el.find('#btn-selected-items').html()).to.contain('0');
+    });
+
+    it('test select displayed columns', function() {
+      registry.scan(this.$el);
+      // manually setting a borrowed cookie from the previous test.
+      $.cookie('_fc_activeColumns',
+               '{"value":["ModificationDate","EffectiveDate","review_state",' +
+               '"getObjSize"]}');
+      this.clock.tick(500);
+      var $row = this.$el.find('table thead tr').eq(1);
+      expect($row.find('th').length).to.equal(6);
+      expect($row.find('th').eq(5).text()).to.equal('Actions');
+
+      expect($.cookie('_fc_activeColumnsCustom')).to.be(undefined);
+
+      this.$el.find('#btn-attribute-columns').trigger('click');
+      this.clock.tick(500);
+
+      var $checkbox = this.$el.find(
+          '.attribute-columns input[value="portal_type"]');
+      $checkbox[0].checked = true;
+      $checkbox.trigger('change');
+      this.clock.tick(500);
+
+      var $popover = this.$el.find('.popover.attribute-columns');
+      expect($popover.find('button').text()).to.equal('Save');
+      $popover.find('button').trigger('click');
+      this.clock.tick(500);
+
+      $row = this.$el.find('table thead tr').eq(1);
+      expect($row.find('th').length).to.equal(7);
+      expect($row.find('th').eq(5).text()).to.equal('Type');
+      expect($row.find('th').eq(6).text()).to.equal('Actions');
+      expect($.parseJSON($.cookie('_fc_activeColumnsCustom')).value).to.eql(
+          ["ModificationDate", "EffectiveDate", "review_state", "portal_type"]);
+      // standard cookie unchanged.
+      expect($.parseJSON($.cookie('_fc_activeColumns')).value).to.eql(
+          ["ModificationDate", "EffectiveDate", "review_state", "getObjSize"]);
+
+      $checkbox[0].checked = false;
+      $checkbox.trigger('change');
+      $popover.find('button').trigger('click');
+      this.clock.tick(500);
+
+      $row = this.$el.find('table thead tr').eq(1);
+      expect($row.find('th').length).to.equal(6);
+      expect($.parseJSON($.cookie('_fc_activeColumnsCustom')).value).to.eql(
+          ["ModificationDate", "EffectiveDate", "review_state"]);
+
     });
 
   });
