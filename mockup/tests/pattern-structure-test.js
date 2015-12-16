@@ -329,6 +329,13 @@ define([
 
     });
 
+    it('test main buttons count', function() {
+      registry.scan(this.$el);
+      this.clock.tick(1000);
+      var buttons = this.$el.find('#btngroup-mainbuttons a');
+      expect(buttons.length).to.equal(8);
+    });
+
   });
 
   /* ==========================
@@ -346,7 +353,6 @@ define([
                   '&quot;indexOptionsUrl&quot;: &quot;/tests/json/queryStringCriteria.json&quot;,' +
                   '&quot;contextInfoUrl&quot;: &quot;{path}/contextInfo&quot;,' +
                   '&quot;activeColumnsCookie&quot;: &quot;activeColumnsCustom&quot;,' +
-                  // XXX need a test where there are _no_ buttons.
                   '&quot;buttons&quot;: [{' +
                       '&quot;url&quot;: &quot;foo&quot;, ' +
                       '&quot;title&quot;: &quot;Foo&quot;, ' +
@@ -491,6 +497,89 @@ define([
       expect($.parseJSON($.cookie('_fc_activeColumnsCustom')).value).to.eql(
           ["ModificationDate", "EffectiveDate", "review_state"]);
 
+    });
+
+    it('test main buttons count', function() {
+      registry.scan(this.$el);
+      this.clock.tick(1000);
+      var buttons = this.$el.find('#btngroup-mainbuttons a');
+      expect(buttons.length).to.equal(1);
+    });
+
+  });
+
+
+  /* ==========================
+   TEST: Structure no buttons
+  ========================== */
+  describe('Structure no buttons', function() {
+    beforeEach(function() {
+      // clear cookie setting
+      $.removeCookie('_fc_perPage');
+
+      this.$el = $('' +
+        '<div class="pat-structure" ' +
+             'data-pat-structure="' +
+                 '{&quot;vocabularyUrl&quot;: &quot;/data.json;&quot;,' +
+                  '&quot;indexOptionsUrl&quot;: &quot;/tests/json/queryStringCriteria.json&quot;,' +
+                  '&quot;contextInfoUrl&quot;: &quot;{path}/contextInfo&quot;,' +
+                  '&quot;activeColumnsCookie&quot;: &quot;activeColumnsCustom&quot;,' +
+                  '&quot;buttons&quot;: []' +
+                 '}">' +
+        '</div>').appendTo('body');
+
+      this.server = sinon.fakeServer.create();
+      this.server.autoRespond = true;
+
+      this.server.respondWith('GET', /data.json/, function (xhr, id) {
+        var batch = JSON.parse(getQueryVariable(xhr.url, 'batch'));
+        var start = 0;
+        var end = 15;
+        if (batch) {
+          start = (batch.page - 1) * batch.size;
+          end = start + batch.size;
+        }
+        var items = [];
+
+        xhr.respond(200, { 'Content-Type': 'application/json' }, JSON.stringify({
+          total: 100,
+          results: items
+        }));
+      });
+      this.server.respondWith('GET', /contextInfo/, function (xhr, id) {
+        var data = {
+          addButtons: []
+        };
+        if (xhr.url.indexOf('folder') !== -1){
+          data.object = {
+            UID: '123sdfasdfFolder',
+            getURL: 'http://localhost:8081/folder',
+            path: '/folder',
+            portal_type: 'Folder',
+            Description: 'folder',
+            Title: 'Folder',
+            'review_state': 'published',
+            'is_folderish': true,
+            Subject: [],
+            id: 'folder'
+          };
+        }
+        xhr.respond(200, { 'Content-Type': 'application/json' }, JSON.stringify(data));
+      });
+
+      this.clock = sinon.useFakeTimers();
+    });
+
+    afterEach(function() {
+      this.server.restore();
+      this.clock.restore();
+    });
+
+    it('test main buttons count', function() {
+      registry.scan(this.$el);
+      this.clock.tick(1000);
+      var buttons = this.$el.find('#btngroup-mainbuttons a');
+      expect(buttons.length).to.equal(0);
     });
 
   });
