@@ -516,6 +516,7 @@ define([
     beforeEach(function() {
       // clear cookie setting
       $.removeCookie('_fc_perPage');
+      $.removeCookie('_fc_activeColumnsCustom');
 
       this.$el = $('' +
         '<div class="pat-structure" ' +
@@ -524,6 +525,12 @@ define([
                   '&quot;indexOptionsUrl&quot;: &quot;/tests/json/queryStringCriteria.json&quot;,' +
                   '&quot;contextInfoUrl&quot;: &quot;{path}/contextInfo&quot;,' +
                   '&quot;activeColumnsCookie&quot;: &quot;activeColumnsCustom&quot;,' +
+                  '&quot;activeColumns&quot;: [&quot;getObjSize&quot;],' +
+                  '&quot;availableColumns&quot;: {' +
+                    '&quot;id&quot;: &quot;ID&quot;,' +
+                    '&quot;CreationDate&quot;: &quot;Created&quot;,' +
+                    '&quot;getObjSize&quot;: &quot;Object Size&quot;' +
+                  '},' +
                   '&quot;buttons&quot;: []' +
                  '}">' +
         '</div>').appendTo('body');
@@ -580,6 +587,16 @@ define([
       this.clock.tick(1000);
       var buttons = this.$el.find('#btngroup-mainbuttons a');
       expect(buttons.length).to.equal(0);
+    });
+
+    it('test select displayed columns', function() {
+      registry.scan(this.$el);
+      this.clock.tick(500);
+      var $row = this.$el.find('table thead tr').eq(1);
+      expect($row.find('th').length).to.equal(4);
+      expect($row.find('th').eq(1).text()).to.equal('Title');
+      expect($row.find('th').eq(2).text()).to.equal('Object Size');
+      expect($row.find('th').eq(3).text()).to.equal('Actions');
     });
 
   });
