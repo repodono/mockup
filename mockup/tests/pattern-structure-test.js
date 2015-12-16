@@ -346,21 +346,21 @@ define([
       // clear cookie setting
       $.removeCookie('_fc_perPage');
 
-      this.$el = $('' +
-        '<div class="pat-structure" ' +
-             'data-pat-structure="' +
-                 '{&quot;vocabularyUrl&quot;: &quot;/data.json;&quot;,' +
-                  '&quot;indexOptionsUrl&quot;: &quot;/tests/json/queryStringCriteria.json&quot;,' +
-                  '&quot;contextInfoUrl&quot;: &quot;{path}/contextInfo&quot;,' +
-                  '&quot;activeColumnsCookie&quot;: &quot;activeColumnsCustom&quot;,' +
-                  '&quot;buttons&quot;: [{' +
-                      '&quot;url&quot;: &quot;foo&quot;, ' +
-                      '&quot;title&quot;: &quot;Foo&quot;, ' +
-                      '&quot;id&quot;: &quot;foo&quot;, ' +
-                      '&quot;icon&quot;: &quot;&quot;' +
-                  '}]' +
-                  '}">' +
-        '</div>').appendTo('body');
+      var structure = {
+        "vocabularyUrl": "/data.json",
+        "indexOptionsUrl": "/tests/json/queryStringCriteria.json",
+        "contextInfoUrl": "{path}/contextInfo",
+        "activeColumnsCookie": "activeColumnsCustom",
+        "buttons": [{
+          "url": "foo",
+          "title": "Foo",
+          "id": "foo",
+          "icon": ""
+        }]
+      };
+
+      this.$el = $('<div class="pat-structure"></div>').attr(
+        'data-pat-structure', JSON.stringify(structure)).appendTo('body');
 
       this.server = sinon.fakeServer.create();
       this.server.autoRespond = true;
@@ -518,22 +518,22 @@ define([
       $.removeCookie('_fc_perPage');
       $.removeCookie('_fc_activeColumnsCustom');
 
-      this.$el = $('' +
-        '<div class="pat-structure" ' +
-             'data-pat-structure="' +
-                 '{&quot;vocabularyUrl&quot;: &quot;/data.json;&quot;,' +
-                  '&quot;indexOptionsUrl&quot;: &quot;/tests/json/queryStringCriteria.json&quot;,' +
-                  '&quot;contextInfoUrl&quot;: &quot;{path}/contextInfo&quot;,' +
-                  '&quot;activeColumnsCookie&quot;: &quot;activeColumnsCustom&quot;,' +
-                  '&quot;activeColumns&quot;: [&quot;getObjSize&quot;],' +
-                  '&quot;availableColumns&quot;: {' +
-                    '&quot;id&quot;: &quot;ID&quot;,' +
-                    '&quot;CreationDate&quot;: &quot;Created&quot;,' +
-                    '&quot;getObjSize&quot;: &quot;Object Size&quot;' +
-                  '},' +
-                  '&quot;buttons&quot;: []' +
-                 '}">' +
-        '</div>').appendTo('body');
+      var structure = {
+        "vocabularyUrl": "/data.json",
+        "indexOptionsUrl": "/tests/json/queryStringCriteria.json",
+        "contextInfoUrl": "{path}/contextInfo",
+        "activeColumnsCookie": "activeColumnsCustom",
+        "activeColumns": ["getObjSize"],
+        "availableColumns": {
+          "id": "ID",
+          "CreationDate": "Created",
+          "getObjSize": "Object Size"
+        },
+        "buttons": []
+      };
+
+      this.$el = $('<div class="pat-structure"></div>').attr(
+        'data-pat-structure', JSON.stringify(structure)).appendTo('body');
 
       this.server = sinon.fakeServer.create();
       this.server.autoRespond = true;
