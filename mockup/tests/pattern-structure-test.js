@@ -376,7 +376,7 @@ define([
         var items = [];
 
         xhr.respond(200, { 'Content-Type': 'application/json' }, JSON.stringify({
-          total: 100,
+          total: 0,
           results: items
         }));
       });
@@ -549,7 +549,7 @@ define([
         var items = [];
 
         xhr.respond(200, { 'Content-Type': 'application/json' }, JSON.stringify({
-          total: 100,
+          total: 0,
           results: items
         }));
       });
